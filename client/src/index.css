@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌗 Smooth theme transition */
+* {
+  @apply transition-colors duration-300;
+}
+
+/* 🌞 Light mode defaults */
+body {
+  @apply bg-gray-100 text-black;
+}
+
+/* 🌙 Dark mode defaults */
+.dark body {
+  @apply bg-gray-900 text-white;
+}
