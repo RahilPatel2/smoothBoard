@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 // 🌐 Dynamic URL (works in dev + production)
 const URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  import.meta.env.VITE_BACKEND_URL || "https://smoothboard.onrender.com";
 
 // 🔥 Create socket with better config
 export const socket = io(URL, {
