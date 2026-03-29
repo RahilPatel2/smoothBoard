@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
         redo: [],
         currentStroke: null,
         users: {},
-        notes: {}, // ✅ NEW
+        notes: {},
       };
     }
 
@@ -51,7 +51,6 @@ io.on("connection", (socket) => {
 
     socket.emit("load_history", rooms[room].history);
 
-    // ✅ SEND NOTES ON JOIN
     socket.emit("notes_update", rooms[room].notes);
 
     io.to(room).emit("users_update", rooms[room].users);
@@ -108,7 +107,7 @@ io.on("connection", (socket) => {
     io.to(room).emit("sync_history", r.history);
   });
 
-  // 🧽 CLEAR
+  // 🧽 CLEAR (🔥 FIXED)
   socket.on("clear", (room) => {
     const r = rooms[room];
     if (!r) return;
@@ -117,6 +116,8 @@ io.on("connection", (socket) => {
     r.redo = [];
     r.currentStroke = null;
 
+    // 🔥 FIX: sync everyone properly
+    io.to(room).emit("sync_history", []);
     io.to(room).emit("clear");
   });
 
@@ -146,16 +147,12 @@ io.on("connection", (socket) => {
     io.to(data.room).emit("chat_message", message);
   });
 
-  // =========================
-  // 🗒️ STICKY NOTES (FIXED 🔥)
-  // =========================
-
   // ➕ ADD NOTE
   socket.on("add_note", ({ room, note }) => {
     const r = rooms[room];
     if (!r) return;
 
-    const id = String(note.id); // 🔥 FIX
+    const id = String(note.id);
     r.notes[id] = note;
 
     io.to(room).emit("notes_update", r.notes);
@@ -166,7 +163,7 @@ io.on("connection", (socket) => {
     const r = rooms[room];
     if (!r) return;
 
-    const noteId = String(id); // 🔥 FIX
+    const noteId = String(id);
     if (!r.notes[noteId]) return;
 
     r.notes[noteId] = {
@@ -177,13 +174,12 @@ io.on("connection", (socket) => {
     io.to(room).emit("notes_update", r.notes);
   });
 
-  // ❌ DELETE NOTE (FINAL FIX)
+  // ❌ DELETE NOTE
   socket.on("delete_note", ({ room, id }) => {
     const r = rooms[room];
     if (!r) return;
 
-    const noteId = String(id); // 🔥 CRITICAL FIX
-
+    const noteId = String(id);
     delete r.notes[noteId];
 
     io.to(room).emit("notes_update", r.notes);
